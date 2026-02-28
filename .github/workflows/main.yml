@@ -38,6 +38,7 @@ jobs:
           echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ls ~/.ssh
+          ssh-keyscan -H ${{ secrets.AWS_SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Cleanup SSH key
         if: always()
