@@ -37,9 +37,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-      - name: List files
-        run: ls -la
+          ls -la
 
       - name: Cleanup SSH key
         if: always()
