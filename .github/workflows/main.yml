@@ -24,12 +24,24 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          cache: maven
+          cache: maven # to avoid installing it again everytime we modify the pipeline
+
+      - name: Run tests
+        run: mvn test
 
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Run tests
-        run: mvn test
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.AWS_SERVER_NAME }} >> ~/.ssh/known_hosts
+
       - name: List files
         run: ls -la
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/id_rsa
