@@ -37,7 +37,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.AWS_SERVER_NAME }} >> ~/.ssh/known_hosts
 
       - name: List files
         run: ls -la
