@@ -47,6 +47,7 @@ jobs:
 
             echo "SSH connection successful!"
             ls
+            docker ps
           EOF
       - name: Cleanup SSH key
         if: always()
