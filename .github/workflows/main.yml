@@ -40,6 +40,14 @@ jobs:
           ls ~/.ssh
           ssh-keyscan -H ${{ secrets.AWS_SERVER_IP }} >> ~/.ssh/known_hosts
 
+      - name: Run test script on AWS server
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} << 'EOF'
+
+            echo "SSH connection successful!"
+            ls
+          EOF
       - name: Cleanup SSH key
         if: always()
         run: rm -f ~/.ssh/id_rsa
