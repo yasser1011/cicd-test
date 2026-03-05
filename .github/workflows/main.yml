@@ -30,7 +30,7 @@ jobs:
         run: mvn clean package -Djar.finalName=jar-test
 
       - name: List files
-        run: ls /target
+        run: ls ./target
 
 #      - name: Setup SSH key
 #        run: |
