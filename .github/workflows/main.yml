@@ -23,33 +23,28 @@ jobs:
           distribution: 'corretto'
           cache: maven # to avoid installing it again everytime we modify the pipeline
 
-      - name: Run tests
-        run: mvn test
-
       - name: Build with Maven
-        run: mvn clean package -Djar.finalName=jar-test
+        run: mvn clean package
 
       - name: List files
         run: ls ./target
 
-#      - name: Setup SSH key
-#        run: |
-#          mkdir -p ~/.ssh
-#          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-#          chmod 600 ~/.ssh/id_rsa
-#          ls ~/.ssh
-#          ssh-keyscan -H ${{ secrets.AWS_SERVER_IP }} >> ~/.ssh/known_hosts
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ls ~/.ssh
+          ssh-keyscan -H ${{ secrets.AWS_SERVER_IP }} >> ~/.ssh/known_hosts
 
-#      - name: Copy Jar file to AWS server
-#        run: |
-#          ssh -i ~/.ssh/id_rsa \
-#            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} << 'EOF'
-#
-#            echo "SSH connection successful!"
-#            ls
-#            docker ps
-#          EOF
-
+      - name: Copy Jar file to AWS server
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} "mkdir ~/footballersmarketspringbackend/test"
+          scp -i "~/.ssh/id_rsa" ./target/demo-cicd-app.jar \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }}:~/footballersmarketspringbackend/test/demo-cicd-app.jar
+          ssh -i ~/.ssh/id_rsa \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} "ls -lh ~/footballersmarketspringbackend/test"
 #      - name: Run test script on AWS server
 #        run: |
 #          ssh -i ~/.ssh/id_rsa \
