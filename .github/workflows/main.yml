@@ -40,20 +40,30 @@ jobs:
       - name: Copy Jar file to AWS server
         run: |
           ssh -i ~/.ssh/id_rsa \
-            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} "mkdir ~/footballersmarketspringbackend/test"
-          scp -i "~/.ssh/id_rsa" ./target/demo-cicd-app.jar \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} "mkdir -p ~/footballersmarketspringbackend/test"
+          scp -i ~/.ssh/id_rsa ./target/demo-cicd-app.jar \
             ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }}:~/footballersmarketspringbackend/test/demo-cicd-app.jar
-          ssh -i ~/.ssh/id_rsa \
-            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} "ls -lh ~/footballersmarketspringbackend/test"
-#      - name: Run test script on AWS server
-#        run: |
+          scp -i ~/.ssh/id_rsa Dockerfile \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }}:~/footballersmarketspringbackend/test/Dockerfile
 #          ssh -i ~/.ssh/id_rsa \
-#            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} << 'EOF'
-#
-#            echo "SSH connection successful!"
-#            ls
-#            docker ps
-#          EOF
+#            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} "ls -lh ~/footballersmarketspringbackend/test"
+      - name: Run test script on AWS server
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            ${{ secrets.AWS_SERVER_USER }}@${{ secrets.AWS_SERVER_IP }} << 'EOF'
+            cd ~/footballersmarketspringbackend/test
+            echo "value1=${{ secrets.TESTVALUE1 }}" > .env
+            echo "value2=${{ secrets.TESTVALUE2 }}" >> .env
+            docker build -t my-spring-app .
+
+            docker stop my-spring-app || true
+            docker rm my-spring-app || true
+
+            docker run -d --name my-spring-app -p 5000:5000 --env-file .env my-spring-app
+            docker image prune -f
+            rm .env
+            docker ps | grep my-spring-app
+          EOF
 #      - name: Cleanup SSH key
 #        if: always()
 #        run: rm -f ~/.ssh/id_rsa
